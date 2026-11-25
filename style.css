@@ -1,0 +1,735 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  --crown-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 18 2.5 8 8 11 12 4l4 7 5.5-3L20 18z' fill='%23c9a84c' stroke='%23494942' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 12 12, auto;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow: hidden;
+  cursor: var(--crown-cursor);
+  font-family: "Uncial Antiqua", Georgia, serif;
+  color: #494942;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(92, 92, 81, 0.045) 0,
+      rgba(92, 92, 81, 0.045) 1px,
+      transparent 1px,
+      transparent 7px
+    ),
+    #c5c5bd;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: url("images/night.jpg") center 25% / cover no-repeat;
+  transition: opacity 1.4s ease;
+}
+
+body.night-mode {
+  color: #eee3cb;
+}
+
+body.night-mode::before {
+  opacity: 0.48;
+}
+
+button {
+  border: 0;
+  font: inherit;
+  color: inherit;
+  cursor: var(--crown-cursor);
+}
+
+.cursor-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cursor-trail-dot {
+  position: fixed;
+  width: 5px;
+  height: 2.5px;
+  border-radius: 1px;
+  background: #c9a84c;
+  opacity: 0.65;
+  pointer-events: none;
+  transform: rotate(var(--stitch-angle));
+  animation: cursor-trail-fade 1.2s ease-out forwards;
+}
+
+@keyframes cursor-trail-fade {
+  to {
+    opacity: 0;
+    transform: rotate(var(--stitch-angle)) scale(0.35);
+  }
+}
+
+.scene {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 3vh 4vw;
+}
+
+.human-passing {
+  position: fixed;
+  top: 5vh;
+  right: 9vw;
+  width: min(16vw, 150px);
+  height: min(26vh, 240px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transition: transform 350ms ease;
+}
+
+.human-passing img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.human-passing:hover {
+  transform: translateY(-5px);
+}
+
+.artwork {
+  position: relative;
+  width: min(66vw, 760px);
+  height: min(88vh, 820px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.glass-bottle {
+  position: absolute;
+  top: 50%;
+  right: calc(50% + min(11.55vw, 122.5px) + 90px);
+  width: min(2.4vw, 26px);
+  height: min(15.4vh, 120px);
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  transition: transform 350ms ease;
+  transform: translateY(-50%);
+}
+
+.glass-bottle:hover {
+  transform: translateY(calc(-50% - 5px));
+}
+
+.stone {
+  position: relative;
+  width: min(23.1vw, 245px);
+  aspect-ratio: 1.35;
+  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+  filter: grayscale(0.25) sepia(0.08) contrast(1.05);
+  transition: transform 350ms ease, filter 400ms ease;
+}
+
+.stone-hint {
+  margin-top: 0.4rem;
+  color: #000000;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  opacity: 0.76;
+}
+
+body.night-mode .stone-hint {
+  color: #eee3cb;
+}
+
+.stone:hover {
+  transform: translateY(-5px);
+  filter: grayscale(0.05) sepia(0.12) contrast(1.12);
+}
+
+.stone:focus-visible {
+  outline: 3px solid #5f5f55;
+  outline-offset: 10px;
+}
+
+.stone img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  mix-blend-mode: multiply;
+}
+
+.card-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 280ms ease, visibility 280ms;
+}
+
+.card-overlay.open {
+  pointer-events: none;
+  visibility: visible;
+  opacity: 1;
+}
+
+.king-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(82vw, 430px);
+  height: min(76vh, 620px);
+  display: grid;
+  grid-template-rows: 62% 38%;
+  overflow: hidden;
+  border: 5px solid #77776f;
+  border-radius: 18px;
+  background: #d6d5ca;
+  box-shadow: 0 24px 70px rgba(45, 45, 40, 0.28);
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(0.82);
+  transition: transform 380ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+body.night-mode .king-card {
+  color: #494942;
+}
+
+.card-overlay.open .king-card {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.card-art {
+  min-height: 0;
+  overflow: hidden;
+  border-bottom: 3px solid #77776f;
+  background: #babbb2;
+}
+
+.card-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: grayscale(0.85) contrast(1.12);
+  mix-blend-mode: multiply;
+}
+
+.card-copy {
+  padding: clamp(1rem, 3vh, 1.7rem);
+  overflow: hidden;
+}
+
+.start-game {
+  margin-top: 0.75rem;
+  padding: 0.45rem 0.9rem;
+  border: 2px solid #6f684e;
+  border-radius: 999px;
+  background: #c9a84c;
+  font-size: 0.85rem;
+  transition: transform 200ms ease, background-color 200ms ease;
+}
+
+.start-game:hover {
+  transform: translateY(-2px);
+  background: #d7bc70;
+}
+
+.card-copy h1 {
+  font-size: clamp(1.6rem, 5vw, 2.5rem);
+  line-height: 1;
+  font-weight: normal;
+}
+
+.card-copy p {
+  margin-top: 0.55rem;
+  font-family: Georgia, serif;
+  font-size: clamp(0.82rem, 2.2vw, 1rem);
+  line-height: 1.35;
+}
+
+#cardYear {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.game-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 17, 18, 0.78);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease, visibility 250ms;
+}
+
+.game-overlay.open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.game-panel {
+  width: min(94vw, 900px);
+  max-height: 94vh;
+  overflow: auto;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 3px solid #77776f;
+  border-radius: 14px;
+  background: #d6d5ca;
+  color: #494942;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.game-header h2 {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: normal;
+}
+
+.close-game {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #77776f;
+  border-radius: 50%;
+  background: #e7e5d9;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.game-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: min(68vh, 720px);
+  min-height: 320px;
+  overflow: hidden;
+  border: 2px solid #77776f;
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse at center, rgba(201, 168, 76, 0.16), transparent 55%),
+    linear-gradient(145deg, #343638, #181a1d);
+}
+
+.game-board {
+  position: relative;
+  width: min(40vw, 460px);
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 768 / 1114;
+  overflow: hidden;
+  background: #242321;
+}
+
+.game-artwork {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.character-zone {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--width);
+  height: var(--height);
+  border: 1px dashed rgba(255, 223, 142, 0.24);
+  border-radius: 42%;
+  background: transparent;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.character-zone.selected {
+  border: 2px solid #f1cf68;
+  background: rgba(255, 213, 95, 0.2);
+  box-shadow: 0 0 22px rgba(255, 211, 91, 0.72), inset 0 0 18px rgba(255, 222, 129, 0.45);
+}
+
+.character-zone.collected {
+  border: 2px solid #ffe69a;
+  background: rgba(255, 216, 104, 0.32);
+  box-shadow: 0 0 30px rgba(255, 220, 111, 0.85), inset 0 0 22px rgba(255, 235, 169, 0.7);
+}
+
+.character-count {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: none;
+  min-width: 3.2rem;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid #ead18a;
+  border-radius: 999px;
+  background: #2a2925;
+  color: #ffebac;
+  font: 0.72rem/1.2 Georgia, serif;
+  white-space: nowrap;
+}
+
+.character-zone.selected .character-count,
+.character-zone.collected .character-count {
+  display: block;
+}
+
+.hand-pointer {
+  position: absolute;
+  z-index: 4;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #fff0b8;
+  border-radius: 50%;
+  background: #d7ad48;
+  box-shadow: 0 0 14px 5px rgba(255, 213, 95, 0.8);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.hand-pointer[hidden] {
+  display: none;
+}
+
+.game-camera {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  width: clamp(110px, 20vw, 180px);
+  aspect-ratio: 4 / 3;
+  border: 2px solid #d6d5ca;
+  border-radius: 6px;
+  background: #101113;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.game-score {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #f0e5c8;
+  font-size: 1rem;
+  text-shadow: 0 1px 5px #111;
+}
+
+.night-mode .game-score {
+  color: #f0e5c8;
+}
+
+.game-status {
+  min-height: 1.5em;
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.game-privacy {
+  margin-top: 0.3rem;
+  font: 0.78rem/1.4 Georgia, serif;
+  opacity: 0.8;
+}
+
+.retry-game {
+  margin-top: 0.75rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #6f684e;
+  border-radius: 6px;
+  background: #c9a84c;
+}
+
+.drink-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 17, 18, 0.78);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease, visibility 250ms;
+}
+
+.drink-overlay.open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drink-panel {
+  position: relative;
+  width: min(92vw, 660px);
+  max-height: 94vh;
+  overflow: auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 3px solid #77776f;
+  border-radius: 12px;
+  background: #f0eee5;
+  color: #24231f;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+}
+
+.drink-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid #77776f;
+  border-radius: 50%;
+  background: #e7e5d9;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.drink-panel h2 {
+  margin: 0 2rem 1.25rem;
+  font-size: clamp(1.2rem, 3.3vw, 1.8rem);
+  font-weight: normal;
+}
+
+.drink-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(220px, 34vh, 330px);
+  border: 1px solid rgba(73, 73, 66, 0.25);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(0deg, rgba(99, 91, 73, 0.025) 0 1px, transparent 1px 5px),
+    #f7f5ed;
+}
+
+.drink-cup {
+  position: relative;
+  width: clamp(100px, 18vw, 142px);
+  height: clamp(125px, 25vh, 180px);
+}
+
+.drink-cup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #393832;
+  clip-path: polygon(3% 0, 97% 0, 82% 100%, 18% 100%);
+}
+
+.cup-interior {
+  position: absolute;
+  inset: 4px;
+  z-index: 1;
+  overflow: hidden;
+  background: #f7f5ed;
+  clip-path: polygon(4% 0, 96% 0, 82% 100%, 18% 100%);
+}
+
+.drink-liquid {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 0;
+  background: linear-gradient(180deg, #edc465, #bd7936);
+  transition: height 100ms linear;
+}
+
+.cup-rim {
+  position: absolute;
+  top: -1px;
+  left: 1%;
+  z-index: 2;
+  width: 98%;
+  height: 8px;
+  border: 3px solid #393832;
+  border-radius: 50%;
+}
+
+.drink-cup.overflowing::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 43%;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #edc465;
+  box-shadow: 12px 8px 0 -4px #d59a4a, -10px 12px 0 -5px #edc465;
+  animation: cup-spill 280ms ease-in-out infinite alternate;
+}
+
+.drink-camera {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: clamp(90px, 18vw, 150px);
+  aspect-ratio: 4 / 3;
+  border: 2px solid #77776f;
+  border-radius: 6px;
+  background: #171717;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.drink-prompt {
+  margin-top: 1rem;
+  font-size: clamp(1.1rem, 2.6vw, 1.45rem);
+}
+
+.drink-score {
+  margin-top: 0.5rem;
+  font: 1rem Georgia, serif;
+}
+
+.drink-status {
+  min-height: 1.5em;
+  margin-top: 0.65rem;
+  font: 0.95rem/1.4 Georgia, serif;
+}
+
+.drink-privacy {
+  margin-top: 0.45rem;
+  font: 0.75rem/1.4 Georgia, serif;
+  opacity: 0.75;
+}
+
+.drink-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.drink-start,
+.drink-retry {
+  padding: 0.55rem 1.1rem;
+  border: 1px solid #6f684e;
+  border-radius: 999px;
+  background: #c9a84c;
+  font: inherit;
+}
+
+@keyframes cup-spill {
+  to {
+    transform: translateY(7px) scale(0.85);
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    overflow: auto;
+  }
+
+  .scene {
+    min-height: 100svh;
+  }
+
+  .human-passing {
+    top: 4vh;
+    right: 7vw;
+    width: min(24vw, 115px);
+    height: min(22svh, 180px);
+  }
+
+  .artwork {
+    width: 100vw;
+    height: 88svh;
+  }
+
+  .glass-bottle {
+    right: calc(50% + min(18.25vw, 106.5px) + 48px);
+    width: min(4.3vw, 20px);
+    height: min(14svh, 96px);
+  }
+
+  .stone {
+    width: min(36.5vw, 213px);
+  }
+
+  .king-card {
+    position: absolute;
+    left: 50%;
+    width: min(86vw, 390px);
+    height: min(70vh, 560px);
+  }
+
+  .game-panel {
+    width: 96vw;
+    max-height: 92svh;
+    padding: 0.9rem;
+  }
+
+  .game-stage {
+    height: min(68svh, 650px);
+    min-height: 320px;
+  }
+
+  .game-board {
+    width: min(74vw, 330px);
+    height: auto;
+  }
+
+  .game-camera {
+    top: 0.5rem;
+    left: 0.5rem;
+    width: clamp(80px, 24vw, 130px);
+  }
+
+  .game-score {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .drink-panel {
+    width: 96vw;
+    max-height: 92svh;
+    padding: 1rem;
+  }
+
+  .drink-stage {
+    height: min(34svh, 280px);
+  }
+
+  .drink-camera {
+    width: clamp(75px, 22vw, 110px);
+  }
+}

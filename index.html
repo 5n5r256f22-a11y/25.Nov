@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>King's Stone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="cursor-trail" id="cursorTrail" aria-hidden="true"></div>
+  <main class="scene">
+    <button class="human-passing" id="drinkGameLaunch" type="button" aria-label="Open the drink filling game">
+      <img src="images/human passing.png" alt="">
+    </button>
+    <section class="artwork" aria-label="Coronation stone">
+      <img class="glass-bottle" src="images/glass bottle.png" alt="Glass bottle">
+      <button class="stone" id="stone" type="button" aria-expanded="false" aria-label="Open a king card">
+        <img src="images/coronation stone .png" alt="Coronation stone">
+      </button>
+      <p class="stone-hint" aria-hidden="true">Click the stone</p>
+    </section>
+
+    <div class="card-overlay" id="cardOverlay" aria-hidden="true">
+      <article class="king-card" role="dialog" aria-modal="true" aria-label="King information card">
+        <div class="card-art">
+          <img id="cardImage" src="images/king 1.JPG" alt="King illustration">
+        </div>
+        <div class="card-copy">
+          <h1 id="cardName">King Cadred</h1>
+          <p id="cardYear">945</p>
+          <p id="cardDescription"></p>
+          <button class="start-game" id="startGame" type="button">Start Game</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="game-overlay" id="gameOverlay" aria-hidden="true">
+      <section class="game-panel" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+        <header class="game-header">
+          <h2 id="gameTitle">Collect the Figures</h2>
+          <button class="close-game" id="closeGame" type="button" aria-label="Close game">×</button>
+        </header>
+        <div class="game-stage">
+          <div class="game-board" id="gameBoard">
+            <img class="game-artwork" src="images/war%20scene.png" alt="Historical illustration of people and animals in a medieval scene">
+            <button class="character-zone" type="button" data-character-id="left-figure" data-character-name="Left-side figure" data-x="0.01" data-y="0.39" data-width="0.14" data-height="0.2" aria-label="Select left-side figure">
+              <span class="character-count" aria-hidden="true">0 / 5</span>
+            </button>
+            <button class="character-zone" type="button" data-character-id="archer" data-character-name="Archer" data-x="0.19" data-y="0.12" data-width="0.23" data-height="0.19" aria-label="Select archer">
+              <span class="character-count" aria-hidden="true">0 / 5</span>
+            </button>
+            <button class="character-zone" type="button" data-character-id="crowned-figure" data-character-name="Crowned figure" data-x="0.35" data-y="0.25" data-width="0.29" data-height="0.24" aria-label="Select crowned figure">
+              <span class="character-count" aria-hidden="true">0 / 5</span>
+            </button>
+            <button class="character-zone" type="button" data-character-id="right-figure" data-character-name="Right-side figure" data-x="0.59" data-y="0.33" data-width="0.23" data-height="0.25" aria-label="Select right-side figure">
+              <span class="character-count" aria-hidden="true">0 / 5</span>
+            </button>
+            <button class="character-zone" type="button" data-character-id="upper-window-figure" data-character-name="Upper window figure" data-x="0.83" data-y="0.03" data-width="0.17" data-height="0.27" aria-label="Select upper window figure">
+              <span class="character-count" aria-hidden="true">0 / 5</span>
+            </button>
+            <button class="character-zone" type="button" data-character-id="lower-window-figure" data-character-name="Lower window figure" data-x="0.86" data-y="0.43" data-width="0.14" data-height="0.28" aria-label="Select lower window figure">
+              <span class="character-count" aria-hidden="true">0 / 5</span>
+            </button>
+            <span class="hand-pointer" id="handPointer" aria-hidden="true" hidden></span>
+          </div>
+          <video class="game-camera" id="gameCamera" autoplay playsinline muted hidden></video>
+          <p class="game-score" id="gameScore">Collected: 0 / 6</p>
+        </div>
+        <p class="game-status" id="gameStatus" role="status" aria-live="polite">Move your hand over a figure and select it five times to collect it.</p>
+        <p class="game-privacy">Camera video is processed locally and is not recorded or uploaded.</p>
+        <button class="retry-game" id="retryGame" type="button" hidden>Try Again</button>
+      </section>
+    </div>
+
+    <div class="drink-overlay" id="drinkOverlay" aria-hidden="true">
+      <section class="drink-panel" role="dialog" aria-modal="true" aria-labelledby="drinkTitle">
+        <button class="drink-close" id="closeDrinkGame" type="button" aria-label="Close drink game">×</button>
+        <h2 id="drinkTitle">Would you like some drinks?</h2>
+        <div class="drink-stage">
+          <div class="drink-cup" id="drinkCup" role="img" aria-label="Empty cup">
+            <div class="cup-interior">
+              <div class="drink-liquid" id="drinkLiquid"></div>
+            </div>
+            <span class="cup-rim" aria-hidden="true"></span>
+          </div>
+          <video class="drink-camera" id="drinkCamera" autoplay playsinline muted hidden></video>
+        </div>
+        <p class="drink-prompt">Fill the cup pls!</p>
+        <p class="drink-score" id="drinkScore">Score: 0</p>
+        <p class="drink-status" id="drinkStatus" role="status" aria-live="polite">Open your mouth to pour. Close it to lock your score before the cup overflows.</p>
+        <p class="drink-privacy">This is a virtual drink. Camera video is processed locally and is not recorded or uploaded.</p>
+        <div class="drink-actions">
+          <button class="drink-start" id="startDrinkGame" type="button">Start Game</button>
+          <button class="drink-retry" id="retryDrinkGame" type="button" hidden>Play Again</button>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
