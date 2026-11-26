@@ -227,6 +227,7 @@ let lastBusAudioUpdate = 0;
 let gameMusicNextNoteTime = 0;
 let gameMusicStep = 0;
 let gameMusicStarted = false;
+let passengerGreetingCount = 0;
 let busAudioResumePending = false;
 let busAudioUnavailable = false;
 const gameMusicMelody = [
@@ -325,7 +326,7 @@ function playButtonHoverSound() {
   oscillator.frequency.setValueAtTime(820, startTime);
   oscillator.frequency.exponentialRampToValueAtTime(410, startTime + 0.08);
   gain.gain.setValueAtTime(0.0001, startTime);
-  gain.gain.exponentialRampToValueAtTime(0.05, startTime + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.09, startTime + 0.008);
   gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.09);
   oscillator.connect(gain);
   gain.connect(busAudioContext.destination);
@@ -392,13 +393,23 @@ function playPassengerGreeting() {
     return;
   }
 
+  const greetingStyles = [
+    { pitch: 1.5, rate: 1.17, voicePattern: /(?:\bboy\b|\bchild\b|\bkid\b|\bmale\b|david|daniel|james|mark|tom)/i },
+    { pitch: 1.65, rate: 1.12, voicePattern: /(?:\bgirl\b|\bchild\b|\bkid\b|\bfemale\b|samantha|karen|moira|tessa|victoria|zira|susan)/i },
+    { pitch: 0.85, rate: 0.88, voicePattern: /(?:grandma|grandmother|elder|old lady)/i }
+  ];
+  const style = greetingStyles[passengerGreetingCount % greetingStyles.length];
+  const englishVoices = window.speechSynthesis.getVoices()
+    .filter((voice) => voice.lang.toLowerCase().startsWith("en"));
   const greeting = new SpeechSynthesisUtterance("Cheers!");
   greeting.lang = "en-US";
-  greeting.rate = 0.95;
-  greeting.pitch = 0.9;
+  greeting.rate = style.rate;
+  greeting.pitch = style.pitch;
   greeting.volume = 0.8;
-  greeting.voice = window.speechSynthesis.getVoices()
-    .find((voice) => voice.lang.toLowerCase().startsWith("en")) || null;
+  greeting.voice = englishVoices.find((voice) => style.voicePattern.test(voice.name))
+    || englishVoices[passengerGreetingCount % Math.max(englishVoices.length, 1)]
+    || null;
+  passengerGreetingCount += 1;
   greeting.onerror = (event) => {
     console.error("Could not play passenger greeting.", event.error);
   };
@@ -502,7 +513,7 @@ function updateBusAudio() {
   busAudioFrame = requestAnimationFrame(updateBusAudio);
 }
 
-function enableBusAudio() {
+function enableBusAudio(userGesture = false) {
   if (busAudioUnavailable) return;
 
   try {
@@ -554,22 +565,26 @@ function enableBusAudio() {
       if (busAudioFrame === null) {
         busAudioFrame = requestAnimationFrame(updateBusAudio);
       }
-      document.removeEventListener("pointerdown", enableBusAudio);
-      document.removeEventListener("keydown", enableBusAudio);
+      document.removeEventListener("pointerdown", enableBusAudioFromGesture);
+      document.removeEventListener("keydown", enableBusAudioFromGesture);
       return;
     }
 
-    if (busAudioResumePending) return;
+    if (busAudioResumePending && !userGesture) return;
     busAudioResumePending = true;
     void busAudioContext.resume().then(() => {
       busAudioResumePending = false;
-      document.removeEventListener("pointerdown", enableBusAudio);
-      document.removeEventListener("keydown", enableBusAudio);
+      document.removeEventListener("pointerdown", enableBusAudioFromGesture);
+      document.removeEventListener("keydown", enableBusAudioFromGesture);
       if (busAudioFrame === null) {
         busAudioFrame = requestAnimationFrame(updateBusAudio);
       }
     }).catch((error) => {
       busAudioResumePending = false;
+      if (error.name === "NotAllowedError" && !userGesture) {
+        console.info("Audio autoplay was blocked; waiting for user interaction.");
+        return;
+      }
       console.error("Could not enable bus sound.", error);
     });
   } catch (error) {
@@ -578,8 +593,13 @@ function enableBusAudio() {
   }
 }
 
-document.addEventListener("pointerdown", enableBusAudio);
-document.addEventListener("keydown", enableBusAudio);
+function enableBusAudioFromGesture() {
+  enableBusAudio(true);
+}
+
+document.addEventListener("pointerdown", enableBusAudioFromGesture);
+document.addEventListener("keydown", enableBusAudioFromGesture);
+enableBusAudio();
 
 document.querySelectorAll(".game-start, .exit-game, .scene-arrow").forEach((control) => {
   control.addEventListener("pointerenter", (event) => {
